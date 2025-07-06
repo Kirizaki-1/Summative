@@ -2,87 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Online Reservation Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dormitory Reservation Form</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f9fa;
-      margin: 0;
-      padding: 40px;
+      font-family: 'Georgia', serif;
+      background-color: #f4f4f4;
       color: #333;
+      margin: 0;
+      padding: 40px 20px;
     }
 
-    .container {
-      background: white;
+    h1 {
+      text-align: center;
+      font-weight: normal;
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+      color: #2a2a2a;
+    }
+
+    form {
+      background-color: #fff;
       max-width: 600px;
       margin: auto;
       padding: 30px 40px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
     }
 
     label {
+      margin-top: 20px;
       display: block;
-      margin-top: 15px;
       font-weight: bold;
+      color: #222;
     }
 
-    input, select, textarea {
+    input, textarea {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
+      margin-top: 6px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      background-color: #fafafa;
+      font-family: inherit;
+      font-size: 15px;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #4a76a8;
+      background-color: #fff;
     }
 
     button {
-      margin-top: 20px;
+      margin-top: 30px;
       width: 100%;
       padding: 12px;
-      background-color: #004085;
-      color: white;
-      border: none;
-      border-radius: 5px;
       font-size: 16px;
+      font-weight: bold;
+      background-color: #2f4f6f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
-    .message {
-      margin-top: 20px;
-      font-weight: bold;
-      color: green;
+    button:hover {
+      background-color: #1e3b55;
+    }
+
+    #response {
+      margin-top: 25px;
       text-align: center;
+      font-weight: bold;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Online Reservation Form</h2>
-    <form id="reservationForm">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" required />
 
-      <label for="email">Email Address</label>
-      <input type="email" id="email" required />
+  <h1>Dormitory Room Reservation</h1>
 
-      <label for="date">Reservation Date</label>
-      <input type="date" id="date" required />
+  <form id="reservationForm">
+    <label for="fullname">Full Name</label>
+    <input type="text" id="fullname" name="name" required>
 
-      <label for="guests">Number of Guests</label>
-      <input type="number" id="guests" min="1" max="20" required />
+    <label for="email">Email Address</label>
+    <input type="email" id="email" name="email" required>
 
-      <label for="purpose">Purpose</label>
-      <textarea id="purpose" rows="3" required></textarea>
+    <label for="date">Reservation Date</label>
+    <input type="date" id="date" name="date" required>
 
-      <button type="submit">Submit Reservation</button>
-    </form>
+    <label for="guests">Number of Guests</label>
+    <input type="number" id="guests" name="guests" min="1" max="15" required>
 
-    <div class="message" id="response"></div>
-  </div>
+    <label for="purpose">Purpose of Stay</label>
+    <textarea id="purpose" name="purpose" rows="3" required></textarea>
+
+    <button type="submit">Submit Reservation</button>
+  </form>
+
+  <div id="response"></div>
 
   <script>
     const form = document.getElementById("reservationForm");
@@ -91,53 +113,58 @@
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("name").value.trim();
+      const name = document.getElementById("fullname").value.trim();
       const email = document.getElementById("email").value.trim();
       const date = document.getElementById("date").value;
       const guests = parseInt(document.getElementById("guests").value);
       const purpose = document.getElementById("purpose").value.trim();
 
-      // Selection logic (validation)
       if (guests > 15) {
-        responseEl.style.color = 'red';
         responseEl.textContent = "Maximum allowed guests is 15.";
+        responseEl.style.color = "#b35c00";
         return;
       }
 
-      // Loop example: simple spam word checker
-      const bannedWords = ["spam", "test", "dummy"];
-      for (let word of bannedWords) {
+      const banned = ["spam", "test", "dummy"];
+      for (let word of banned) {
         if (purpose.toLowerCase().includes(word)) {
-          responseEl.style.color = 'red';
-          responseEl.textContent = "Invalid input detected in purpose.";
+          responseEl.textContent = "Inappropriate word detected in purpose.";
+          responseEl.style.color = "#b35c00";
           return;
         }
       }
 
-      const data = { name, email, date, guests, purpose };
+      const formData = new URLSearchParams();
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("date", date);
+      formData.append("guests", guests);
+      formData.append("purpose", purpose);
 
       try {
-       const res = await fetch("https://script.google.com/macros/s/AKfycbxlOnhuQAj148ZXaLwrB9TY5QKQef4iH1CAlsX_5CPxcNt53ZsIsMO1qkEaHB515a2MbQ/exec", {
-  method: "POST",
-  body: JSON.stringify(data),
-  headers: { "Content-Type": "application/json" },
-});
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyEJfMvl68y-mEWA04KKZD8gGUOUIhthX1l7IrnvM6uqrrmadHol5fBilzAyCkkATW2zA/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData.toString()
+        });
 
-        const result = await res.json();
-        if (result.result === "success") {
-          responseEl.style.color = "green";
-          responseEl.textContent = `Reservation submitted. Thank you, ${name}.`;
-          form.reset();
-        } else {
-          responseEl.style.color = "red";
-          responseEl.textContent = "Submission failed. Try again later.";
-        }
-      } catch (err) {
+        const text = await res.text();
+        responseEl.textContent = text.includes("received") ?
+          `Reservation submitted successfully. Thank you, ${name}.` :
+          "Submission failed. Please try again later.";
+        responseEl.style.color = text.includes("received") ? "green" : "red";
+
+        if (text.includes("received")) form.reset();
+
+      } catch (error) {
+        responseEl.textContent = "Error connecting to the server.";
         responseEl.style.color = "red";
-        responseEl.textContent = "Error sending data.";
-        console.error(err);
+        console.error(error);
       }
     });
   </script>
+
 </body>
 </html>
